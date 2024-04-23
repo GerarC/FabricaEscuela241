@@ -1,12 +1,15 @@
 package co.edu.udea.sitas.persistence.specifications;
 
+import co.edu.udea.sitas.domain.model.Airport;
 import co.edu.udea.sitas.domain.model.Flight;
 import co.edu.udea.sitas.domain.model.Scale;
 import jakarta.persistence.criteria.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 public class FlightSpecification {
 
     /**
@@ -27,14 +30,10 @@ public class FlightSpecification {
      */
     public static Specification<Flight> flightsDepartureAfter(LocalDateTime date) {
         return (Root<Flight> root, CriteriaQuery<?> query, CriteriaBuilder builder) -> {
-            if (date != null) {
-                Subquery<LocalDateTime> earliestDepartureSubquery = query.subquery(LocalDateTime.class);
-                Root<Scale> scale = earliestDepartureSubquery.from(Scale.class);
-                Expression<LocalDateTime> earliestDeparture = scaleFetchFirst(scale, builder, root, earliestDepartureSubquery, true);
-                return builder.greaterThanOrEqualTo(earliestDeparture, date);
-            } else {
-                return builder.isTrue(builder.literal(true));
-            }
+            Subquery<LocalDateTime> earliestDepartureSubquery = query.subquery(LocalDateTime.class);
+            Root<Scale> scale = earliestDepartureSubquery.from(Scale.class);
+            Expression<LocalDateTime> earliestDeparture = scaleFetchFirst(scale, builder, root, earliestDepartureSubquery, true);
+            return builder.greaterThanOrEqualTo(earliestDeparture, date);
         };
     }
 
@@ -49,7 +48,6 @@ public class FlightSpecification {
             Root<Scale> scale = latestDepartureSubquery.from(Scale.class);
             latestDepartureSubquery.select(scale.get("arrivalDate"))
                     .where(builder.equal(scale.get("flight"), root));
-
             Expression<LocalDateTime> latestDeparture = scaleFetchFirst(scale, builder, root, latestDepartureSubquery, false);
             return builder.lessThanOrEqualTo(latestDeparture, date);
         };
@@ -61,8 +59,8 @@ public class FlightSpecification {
      * @return the flight specification
      */
     public static Specification<Flight> withFlightNumber(String flightNumber) {
-        return (root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("flightNumber"), flightNumber);
+        return (Root<Flight> root, CriteriaQuery<?> query, CriteriaBuilder builder) ->
+                builder.equal(root.get("flightNumber"), flightNumber);
     }
 
     /**
@@ -72,8 +70,10 @@ public class FlightSpecification {
      * @return A Specification for filtering flights by origin city.
      */
     public static Specification<Flight> withOriginCity(String city) {
-        return (Root<Flight> root, CriteriaQuery<?> query, CriteriaBuilder builder) ->
-                builder.equal(root.join("scales").join("originAirport").get("city"), city);
+        return (root, query, builder) -> {
+            Subquery<String> originCitySubquery = createAirportSubquery(query, root, builder, "min", "originAirport", "city");
+            return builder.equal(originCitySubquery.getSelection(), city);
+        };
     }
 
     /**
@@ -83,16 +83,9 @@ public class FlightSpecification {
      * @return A Specification for filtering flights by destination city.
      */
     public static Specification<Flight> withDestinationCity(String city) {
-        return (Root<Flight> root, CriteriaQuery<?> query, CriteriaBuilder builder) -> {
-            Subquery<String> destinationCitySubquery = query.subquery(String.class);
-            Root<Scale> scale = destinationCitySubquery.from(Scale.class);
-            destinationCitySubquery.select(scale.join("destinationAirport").get("city"))
-                    .where(builder.equal(scale.get("flight"), root));
-
-            return builder.equal(
-                    destinationCitySubquery.getSelection(),
-                    city
-            );
+        return (root, query, builder) -> {
+            Subquery<String> destinationCitySubquery = createAirportSubquery(query, root, builder, "max", "destinationAirport", "city");
+            return builder.equal(destinationCitySubquery.getSelection(), city);
         };
     }
 
@@ -103,8 +96,10 @@ public class FlightSpecification {
      * @return A Specification for filtering flights by origin airport code.
      */
     public static Specification<Flight> withOriginAirport(String airportCode) {
-        return (Root<Flight> root, CriteriaQuery<?> query, CriteriaBuilder builder) ->
-                builder.equal(root.join("scales").join("originAirport").get("airportCode"), airportCode);
+        return (root, query, builder) -> {
+            Subquery<String> originAirportSubquery = createAirportSubquery(query, root, builder, "min", "originAirport", "airportCode");
+            return builder.equal(originAirportSubquery.getSelection(), airportCode);
+        };
     }
 
     /**
@@ -114,16 +109,9 @@ public class FlightSpecification {
      * @return A Specification for filtering flights by destination airport code.
      */
     public static Specification<Flight> withDestinationAirport(String airportCode) {
-        return (Root<Flight> root, CriteriaQuery<?> query, CriteriaBuilder builder) -> {
-            Subquery<String> destinationCitySubquery = query.subquery(String.class);
-            Root<Scale> scale = destinationCitySubquery.from(Scale.class);
-            destinationCitySubquery.select(scale.join("destinationAirport").get("airportCode"))
-                    .where(builder.equal(scale.get("flight"), root));
-
-            return builder.equal(
-                    destinationCitySubquery.getSelection(),
-                    airportCode
-            );
+        return (root, query, builder) -> {
+            Subquery<String> destinationAirportSubquery = createAirportSubquery(query, root, builder, "max", "destinationAirport", "airportCode");
+            return builder.equal(destinationAirportSubquery.getSelection(), airportCode);
         };
     }
 
@@ -133,8 +121,8 @@ public class FlightSpecification {
      * @return the flight specification
      */
     public static Specification<Flight> withBasePriceGreaterThan(Float minPrice) {
-        return (root, query, criteriaBuilder) ->
-                criteriaBuilder.greaterThanOrEqualTo(root.get("basePrice"), minPrice);
+        return (Root<Flight> root, CriteriaQuery<?> query, CriteriaBuilder builder) ->
+                builder.greaterThanOrEqualTo(root.get("basePrice"), minPrice);
     }
 
     /**
@@ -143,8 +131,8 @@ public class FlightSpecification {
      * @return the flight specification
      */
     public static Specification<Flight> withBasePriceLessThan(Float maxPrice) {
-        return (root, query, criteriaBuilder) ->
-                criteriaBuilder.lessThanOrEqualTo(root.get("basePrice"), maxPrice);
+        return (Root<Flight> root, CriteriaQuery<?> query, CriteriaBuilder builder) ->
+                builder.lessThanOrEqualTo(root.get("basePrice"), maxPrice);
     }
 
 
@@ -155,5 +143,44 @@ public class FlightSpecification {
         subquery.select(builder.function(asc ? "min" : "max", LocalDateTime.class, scale.get("departureDate")))
                 .where(builder.equal(scale.get("flight"), root));
         return subquery.getSelection();
+    }
+
+    /**
+     * Creates a subquery to find the minimum or maximum departure date for each flight.
+     *
+     * @param query   The CriteriaQuery instance.
+     * @param root    The Root of the Flight entity.
+     * @param builder The CriteriaBuilder instance.
+     * @param function The aggregate function to apply (e.g., "min" or "max").
+     * @return The subquery to find the minimum or maximum departure date.
+     */
+    private static Subquery<LocalDateTime> createDepartureDateSubquery(CriteriaQuery<?> query, Root<Flight> root, CriteriaBuilder builder, String function) {
+        log.info("Search {} date", function);
+        Subquery<LocalDateTime> departureDateSubquery = query.subquery(LocalDateTime.class);
+        Root<Scale> scaleSubqueryRoot = departureDateSubquery.from(Scale.class);
+        departureDateSubquery.select(builder.function(function, LocalDateTime.class, scaleSubqueryRoot.get("departureDate")))
+                .where(builder.equal(scaleSubqueryRoot.get("flight"), root));
+        return departureDateSubquery;
+    }
+
+    /**
+     * Creates a subquery to find the city or airport code corresponding to the minimum or maximum departure date.
+     *
+     * @param query        The CriteriaQuery instance.
+     * @param root         The Root of the Flight entity.
+     * @param builder      The CriteriaBuilder instance.
+     * @param function     The aggregate function to apply (e.g., "min" or "max").
+     * @param airportType  The type of airport (e.g., "originAirport" or "destinationAirport").
+     * @param attributeName The name of the attribute to select (e.g., "city" or "airportCode").
+     * @return The subquery to find the city or airport code.
+     */
+    private static Subquery<String> createAirportSubquery(CriteriaQuery<?> query, Root<Flight> root, CriteriaBuilder builder, String function, String airportType, String attributeName) {
+        log.info("search {} in a {}", attributeName, airportType);
+        Subquery<String> airportSubquery = query.subquery(String.class);
+        Root<Scale> scaleRoot = airportSubquery.from(Scale.class);
+        Join<Scale, Airport> airportJoin = scaleRoot.join(airportType);
+        airportSubquery.select(airportJoin.get(attributeName))
+                .where(builder.equal(scaleRoot.get("departureDate"), createDepartureDateSubquery(query, root, builder, function).getSelection()));
+        return airportSubquery;
     }
 }
