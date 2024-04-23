@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@org.springframework.data.relational.core.mapping.Table(name = "AirplaneModel")
+@Table(name = "AirplaneModel")
 public class AirplaneModel implements Serializable {
     @Id
     @Column(name = "airplane_model")
