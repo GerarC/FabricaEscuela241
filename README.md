@@ -10,4 +10,4 @@
 
 
 
-This is a repository to store the backen project of Fabrica Escuela from UdeA
+This is a repository to store the backend project of Fabrica Escuela from UdeA
