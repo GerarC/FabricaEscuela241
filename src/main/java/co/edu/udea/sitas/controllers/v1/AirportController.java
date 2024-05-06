@@ -2,15 +2,15 @@ package co.edu.udea.sitas.controllers.v1;
 
 import co.edu.udea.sitas.domain.dto.AirportDTO;
 import co.edu.udea.sitas.domain.model.Airport;
+import co.edu.udea.sitas.hateoas.AirportHateoasAssembler;
 import co.edu.udea.sitas.services.AirportService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v1/airports")
@@ -18,23 +18,25 @@ public class AirportController {
 
     private final AirportService airportService;
 
+    private final AirportHateoasAssembler assembler;
+
     @Autowired
-    public AirportController(AirportService airportService) {
+    public AirportController(AirportService airportService, AirportHateoasAssembler assembler) {
         this.airportService = airportService;
+        this.assembler = assembler;
     }
 
     @GetMapping
-    public ResponseEntity<List<AirportDTO>> getAllAirports() {
-        List<AirportDTO> airportDTOs = airportService.findAll().stream()
-                .map(AirportDTO::buildAirportDTO)
-                .collect(Collectors.toList());
+    public ResponseEntity<CollectionModel<AirportDTO>> getAllAirports() {
+        CollectionModel<AirportDTO> airportDTOs = assembler.toCollectionModel(airportService.findAll());
+
         return new ResponseEntity<>(airportDTOs, HttpStatus.OK);
     }
 
     @GetMapping("/{airportCode}")
     public ResponseEntity<AirportDTO> getAirportByCode(@PathVariable String airportCode) {
         Optional<Airport> airportOptional = airportService.findById(airportCode);
-        return airportOptional.map(airport -> new ResponseEntity<>(AirportDTO.buildAirportDTO(airport), HttpStatus.OK))
+        return airportOptional.map(airport -> new ResponseEntity<>(assembler.toModel(airport), HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
@@ -62,7 +64,7 @@ public class AirportController {
                 .country(airportDTO.getCountry())
                 .runways(airportDTO.getRunways())
                 .build());
-        return airportOptional.map(airport -> new ResponseEntity<>(AirportDTO.buildAirportDTO(airport), HttpStatus.OK))
+        return airportOptional.map(airport -> new ResponseEntity<>(assembler.toModel(airport), HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }

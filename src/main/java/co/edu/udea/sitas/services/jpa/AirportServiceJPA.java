@@ -20,7 +20,7 @@ public class AirportServiceJPA implements AirportService {
 
     @Override
     public List<Airport> findAll() {
-        return airportRepository.findAll();
+        return (List<Airport>) airportRepository.findAll();
     }
 
     @Override

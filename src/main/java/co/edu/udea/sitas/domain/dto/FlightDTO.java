@@ -5,18 +5,18 @@ import co.edu.udea.sitas.domain.model.Flight;
 import co.edu.udea.sitas.domain.model.Scale;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
 @Setter
 @Getter
 @Slf4j
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FlightDTO {
+public class FlightDTO extends RepresentationModel<FlightDTO> {
     // Attributes
     private Long flightId;
     private String flightNumber;
@@ -31,6 +31,7 @@ public class FlightDTO {
     private List<Scale> scales;
 
     @Override
+    @NonNull
     public String toString() {
         return "FlightDTO{" +
                 "arrivalDate=" + arrivalDate +

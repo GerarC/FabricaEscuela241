@@ -3,9 +3,9 @@ package co.edu.udea.sitas.domain.dto;
 import co.edu.udea.sitas.domain.model.Scale;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.hateoas.RepresentationModel;
 
 
-@Data
 @Setter
 @Getter
 @ToString
@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ScaleDTO {
+public class ScaleDTO extends RepresentationModel<ScaleDTO> {
     private Long scaleId;
     private Long flightId;
     private String airplaneModel;

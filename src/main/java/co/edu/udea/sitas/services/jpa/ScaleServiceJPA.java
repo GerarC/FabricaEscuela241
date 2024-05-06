@@ -22,7 +22,7 @@ public class ScaleServiceJPA implements ScaleService {
 
     @Override
     public List<Scale> findAll() {
-        return scaleRepository.findAll();
+        return (List<Scale>) scaleRepository.findAll();
     }
 
     @Override

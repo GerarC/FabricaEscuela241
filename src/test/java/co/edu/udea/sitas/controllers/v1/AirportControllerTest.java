@@ -2,12 +2,13 @@ package co.edu.udea.sitas.controllers.v1;
 
 import co.edu.udea.sitas.domain.dto.AirportDTO;
 import co.edu.udea.sitas.domain.model.Airport;
+import co.edu.udea.sitas.hateoas.AirportHateoasAssembler;
 import co.edu.udea.sitas.services.AirportService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -23,25 +24,27 @@ class AirportControllerTest {
     @Mock
     private AirportService airportService;
 
-    @InjectMocks
+    private AirportHateoasAssembler assembler;
+
     private AirportController airportController;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        assembler = new AirportHateoasAssembler();
+        airportController = new AirportController(airportService, assembler);
     }
 
     @Test
     void getAllAirports() {
         // Arrange
-        AirportDTO airportDTO1 = new AirportDTO();
-        AirportDTO airportDTO2 = new AirportDTO();
-        List<AirportDTO> expectedAirports = Arrays.asList(airportDTO1, airportDTO2);
+        List<Airport> airports = Arrays.asList(new Airport(), new Airport());
+        CollectionModel<AirportDTO> expectedAirports = assembler.toCollectionModel(airports);
 
-        when(airportService.findAll()).thenReturn(Arrays.asList(new Airport(), new Airport()));
+        when(airportService.findAll()).thenReturn(airports);
 
         // Act
-        ResponseEntity<List<AirportDTO>> response = airportController.getAllAirports();
+        ResponseEntity<CollectionModel<AirportDTO>> response = airportController.getAllAirports();
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -53,7 +56,7 @@ class AirportControllerTest {
     void getAirportByCode() {
         // Arrange
         String airportCode = "ABC";
-        AirportDTO expectedAirport = new AirportDTO();
+        AirportDTO expectedAirport = assembler.toModel(new Airport());
         when(airportService.findById(airportCode)).thenReturn(Optional.of(new Airport()));
 
         // Act

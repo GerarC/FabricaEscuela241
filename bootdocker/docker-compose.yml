@@ -1,0 +1,25 @@
+services:
+    postgres:
+        image: postgres:latest
+        restart: always
+        ports:
+            - "5432:5432"
+        environment:
+            POSTGRES_DB: postgres
+            POSTGRES_USER: fabrica
+            POSTGRES_PASSWORD: F4bric4Escuel4*
+        volumes:
+            - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+    spring-app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "8099:8099"
+        depends_on:
+            - postgres
+        environment:
+            SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
+            SPRING_DATASOURCE_USERNAME: fabrica
+            SPRING_DATASOURCE_PASSWORD: F4bric4Escuel4*

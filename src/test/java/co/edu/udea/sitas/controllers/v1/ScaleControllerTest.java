@@ -5,19 +5,18 @@ import co.edu.udea.sitas.domain.model.AirplaneModel;
 import co.edu.udea.sitas.domain.model.Airport;
 import co.edu.udea.sitas.domain.model.Flight;
 import co.edu.udea.sitas.domain.model.Scale;
+import co.edu.udea.sitas.hateoas.ScaleHateoasAssembler;
 import co.edu.udea.sitas.services.ScaleService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -28,12 +27,15 @@ class ScaleControllerTest {
     @Mock
     private ScaleService scaleService;
 
-    @InjectMocks
     private ScaleController scaleController;
+
+    private ScaleHateoasAssembler assembler;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        assembler = new ScaleHateoasAssembler();
+        scaleController = new ScaleController(scaleService, assembler);
     }
 
     @Test
@@ -60,11 +62,11 @@ class ScaleControllerTest {
         scale.setDepartureDate(departureDate);
         scale.setArrivalDate(arrivalDate);
 
-        List<ScaleDTO> expectedDTOs = Collections.singletonList(ScaleDTO.buildScaleDTO(scale));
+        CollectionModel<ScaleDTO> expectedDTOs = assembler.toCollectionModel(Collections.singletonList(scale));
         when(scaleService.findAll()).thenReturn(Collections.singletonList(scale));
 
         // Act
-        ResponseEntity<List<ScaleDTO>> response = scaleController.getAllScales();
+        ResponseEntity<CollectionModel<ScaleDTO>> response = scaleController.getAllScales();
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -97,7 +99,6 @@ class ScaleControllerTest {
         scale.setArrivalDate(arrivalDate);
 
         when(scaleService.findById(id)).thenReturn(Optional.of(scale));
-        ScaleController scaleController = new ScaleController(scaleService);
         ResponseEntity<ScaleDTO> response = scaleController.getScaleById(id);
 
         // Assert

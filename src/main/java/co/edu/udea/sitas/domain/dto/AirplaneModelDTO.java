@@ -3,8 +3,8 @@ package co.edu.udea.sitas.domain.dto;
 import co.edu.udea.sitas.domain.model.AirplaneModel;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.hateoas.RepresentationModel;
 
-@Data
 @Setter
 @Getter
 @ToString
@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AirplaneModelDTO {
+public class AirplaneModelDTO extends RepresentationModel<AirplaneModelDTO> {
     private String airplaneModel;
     private String family;
     private Integer capacity;
@@ -21,6 +21,7 @@ public class AirplaneModelDTO {
 
     public static AirplaneModelDTO buildAirplaneModelDTO(AirplaneModel airplaneModel){
         log.info("convert airplane model in a AirplaneModelDTO");
+
         return AirplaneModelDTO.builder()
                 .airplaneModel(airplaneModel.getAirplaneModel())
                 .family(airplaneModel.getFamily())

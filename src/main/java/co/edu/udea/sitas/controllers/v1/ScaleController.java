@@ -2,8 +2,10 @@ package co.edu.udea.sitas.controllers.v1;
 
 import co.edu.udea.sitas.domain.dto.ScaleDTO;
 import co.edu.udea.sitas.domain.model.Scale;
+import co.edu.udea.sitas.hateoas.ScaleHateoasAssembler;
 import co.edu.udea.sitas.services.ScaleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,24 +19,24 @@ import java.util.stream.Collectors;
 public class ScaleController {
 
     private final ScaleService scaleService;
+    private final ScaleHateoasAssembler assembler;
 
     @Autowired
-    public ScaleController(ScaleService scaleService) {
+    public ScaleController(ScaleService scaleService, ScaleHateoasAssembler assembler) {
         this.scaleService = scaleService;
+        this.assembler = assembler;
     }
 
     @GetMapping
-    public ResponseEntity<List<ScaleDTO>> getAllScales() {
-        List<ScaleDTO> scaleDTOs = scaleService.findAll().stream()
-                .map(ScaleDTO::buildScaleDTO)
-                .collect(Collectors.toList());
+    public ResponseEntity<CollectionModel<ScaleDTO>> getAllScales() {
+        CollectionModel<ScaleDTO> scaleDTOs = assembler.toCollectionModel(scaleService.findAll());
         return new ResponseEntity<>(scaleDTOs, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ScaleDTO> getScaleById(@PathVariable("id") Long id) {
         Optional<Scale> scaleOptional = scaleService.findById(id);
-        return scaleOptional.map(scale -> new ResponseEntity<>(ScaleDTO.buildScaleDTO(scale), HttpStatus.OK))
+        return scaleOptional.map(scale -> new ResponseEntity<>(assembler.toModel(scale), HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }

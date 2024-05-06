@@ -2,12 +2,13 @@ package co.edu.udea.sitas.controllers.v1;
 
 import co.edu.udea.sitas.domain.dto.AirplaneModelDTO;
 import co.edu.udea.sitas.domain.model.AirplaneModel;
+import co.edu.udea.sitas.hateoas.AirplaneModelHateoasAssembler;
 import co.edu.udea.sitas.services.AirplaneModelService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -23,26 +24,28 @@ class AirplaneModelControllerTest {
     @Mock
     private AirplaneModelService airplaneModelService;
 
-    @InjectMocks
+    private AirplaneModelHateoasAssembler assembler;
+
     private AirplaneModelController airplaneModelController;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        airplaneModelController = new AirplaneModelController(airplaneModelService);
+        assembler = new AirplaneModelHateoasAssembler();
+        airplaneModelController = new AirplaneModelController(airplaneModelService, assembler);
     }
 
     @Test
     void getAllAirplaneModels() {
         // Arrange
-        AirplaneModelDTO airplaneModelDTO1 = new AirplaneModelDTO();
-        AirplaneModelDTO airplaneModelDTO2 = new AirplaneModelDTO();
-        List<AirplaneModelDTO> expectedModels = Arrays.asList(airplaneModelDTO1, airplaneModelDTO2);
+        List<AirplaneModel> airplaneModels = Arrays.asList(new AirplaneModel(), new AirplaneModel());
 
-        when(airplaneModelService.findAll()).thenReturn(Arrays.asList(new AirplaneModel(), new AirplaneModel()));
+        CollectionModel<AirplaneModelDTO> expectedModels = assembler.toCollectionModel(airplaneModels);
+
+        when(airplaneModelService.findAll()).thenReturn(airplaneModels);
 
         // Act
-        ResponseEntity<List<AirplaneModelDTO>> response = airplaneModelController.getAllAirplaneModels();
+        ResponseEntity<CollectionModel<AirplaneModelDTO>> response = airplaneModelController.getAllAirplaneModels();
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -54,7 +57,7 @@ class AirplaneModelControllerTest {
     void getAirplaneModelByModel() {
         // Arrange
         String model = "model";
-        AirplaneModelDTO expectedModel = new AirplaneModelDTO();
+        AirplaneModelDTO expectedModel = assembler.toModel(new AirplaneModel());
         when(airplaneModelService.findById(model)).thenReturn(Optional.of(new AirplaneModel()));
 
         // Act

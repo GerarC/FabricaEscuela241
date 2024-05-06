@@ -1,12 +1,10 @@
 package co.edu.udea.sitas.domain.dto;
 
 import co.edu.udea.sitas.domain.model.Airport;
-import co.edu.udea.sitas.domain.model.Flight;
-import co.edu.udea.sitas.domain.model.Scale;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.hateoas.RepresentationModel;
 
-@Data
 @Setter
 @Getter
 @ToString
@@ -14,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AirportDTO {
+public class AirportDTO extends RepresentationModel<AirportDTO> {
     private String airportCode;
     private String name;
     private String type;

@@ -21,7 +21,7 @@ public class AirplaneModelServiceJPA implements AirplaneModelService {
 
     @Override
     public List<AirplaneModel> findAll() {
-        return airplaneModelRepository.findAll();
+        return (List<AirplaneModel>) airplaneModelRepository.findAll();
     }
 
     @Override
