@@ -1,8 +1,8 @@
 spring: # Spring configuration
     datasource: # Database connection
-        url: jdbc:postgresql://aws-0-sa-east-1.pooler.supabase.com:5432/postgres
-        username: postgres.htvtxwvfcbscbtegopgl
-        password: F4bric4Escuel4*
+        url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://aws-0-sa-east-1.pooler.supabase.com:5432/postgres}
+        username: ${SPRING_DATASOURCE_USERNAME:postgres.htvtxwvfcbscbtegopgl}
+        password: ${SPRING_DATASOURCE_PASSWORD:F4bric4Escuel4*}
         hikari:
             schema: sitas
 
@@ -17,5 +17,25 @@ spring: # Spring configuration
     main:
         allow-bean-definition-overriding: true
 
+management:
+    metrics:
+        tags:
+            application: Sitas
+    endpoints:
+        web:
+            exposure:
+                include: '*'
+    endpoint:
+        health:
+            show-details: always
+            enabled: true
+
+logging:
+    level:
+        web: trace
+        org:
+            springframework:
+                web: trace
+
 server:
-    port: 8080
+    port: 8099
