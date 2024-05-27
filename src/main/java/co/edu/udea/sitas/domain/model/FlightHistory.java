@@ -1,5 +1,6 @@
 package co.edu.udea.sitas.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,6 +24,7 @@ public class FlightHistory implements Serializable {
     private Person person;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "flight_id", nullable = false)
     private Flight flight;
 

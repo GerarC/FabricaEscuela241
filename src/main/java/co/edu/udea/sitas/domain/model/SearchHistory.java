@@ -30,6 +30,9 @@ public class SearchHistory implements Serializable {
     @Column(name = "search_date")
     private LocalDate searchDate;
 
+    @Column(name="query")
+    private String searchQuery;
+
     @Override
     public String toString() {
         return "SearchHistory{" +
@@ -37,6 +40,7 @@ public class SearchHistory implements Serializable {
                 ", person=" + person +
                 ", scale=" + scale +
                 ", searchDate=" + searchDate +
+                ", searchQuery='" + searchQuery + '\'' +
                 '}';
     }
 }

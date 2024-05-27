@@ -21,8 +21,10 @@ or, if you want to run in background, add -d option at the final of the command
 docker compose up -d
 ~~~
 
+The default port of the application is *8099*
+
 ## Main Entities
-The main entities are *Flight*, *Scale*, *Airport* and *AirplaneModel* and these are associated to several end points.
+The main entities are *Flight*, *Scale*, *Airport*, *AirplaneModel*, *Person*, *IdentificationType*, *SearchHistory* and *FlightHistory* and these are associated to several end points.
 These endpoints have the next format:
 - `/entities`: can be used with GET and POST verbs to get all items and save a new one.
 - `/entities/{id}`: can be used with GET, PUT and DELETE verbs, it's not necessary to explain what does each verb.
@@ -31,4 +33,7 @@ These endpoints have the next format:
 **Flight** entity has something special, and it's that can be filtered using the next format: `/flights?parameter=value`,
 these queries can be concatenated like `/flights?param1=val1&param2=val2`.
 
-The available entity end-points are: `flights`, `scales`, `airports`, `airplane-models`.
+The available entity end-points are: `flights`, `scales`, `airports`, `airplane-models`, `people`, `identification-types`, `search-histories`, `flight-histories`.
+
+## TODO
+- [ ] Improve Swagger documentation.

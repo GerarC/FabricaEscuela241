@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/v1/persons")
+@RequestMapping("/v1/people")
 public class PersonController {
 
     private final IdentificationTypeService identificationTypeService;

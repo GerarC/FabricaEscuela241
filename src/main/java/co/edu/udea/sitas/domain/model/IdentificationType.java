@@ -25,7 +25,7 @@ public class IdentificationType implements Serializable {
 
     @JsonIgnore
     @OneToMany(mappedBy = "identificationType", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<Person> persons;
+    private List<Person> people;
 
     @Override
     public String toString() {

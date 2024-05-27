@@ -19,6 +19,7 @@ public class SearchHistoryDTO {
     private Long personId;
     private Long scaleId;
     private LocalDate searchDate;
+    private String searchQuery;
 
     public static SearchHistoryDTO buildSearchHistoryDTO(SearchHistory searchHistory) {
         log.info("convert SearchHistory to SearchHistoryDTO");
@@ -27,6 +28,7 @@ public class SearchHistoryDTO {
                 .personId(searchHistory.getPerson().getPersonId())
                 .scaleId(searchHistory.getScale().getScaleId())
                 .searchDate(searchHistory.getSearchDate())
+                .searchQuery(searchHistory.getSearchQuery())
                 .build();
     }
 }
