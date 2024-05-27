@@ -36,6 +36,10 @@ public class Flight implements Serializable {
     @OneToMany(mappedBy = "flight", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Scale> scales;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "flight", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<FlightHistory> histories;
+
     @Override
     public String toString() {
         return "Flight{" +

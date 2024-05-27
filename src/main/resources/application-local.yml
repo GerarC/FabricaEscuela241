@@ -38,4 +38,4 @@ logging:
                 web: trace
 
 server:
-    port: 8099
+    port: ${SITAS_PORT:8099}

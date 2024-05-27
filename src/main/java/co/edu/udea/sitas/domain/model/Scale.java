@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Setter
@@ -45,6 +46,10 @@ public class Scale implements Serializable {
 
     @Column(name = "arrival_date")
     private LocalDateTime arrivalDate;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "scale", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<SearchHistory> searchHistories;
 
     @Override
     public String toString() {
