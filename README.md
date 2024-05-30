@@ -36,4 +36,4 @@ these queries can be concatenated like `/flights?param1=val1&param2=val2`.
 The available entity end-points are: `flights`, `scales`, `airports`, `airplane-models`, `people`, `identification-types`, `search-histories`, `flight-histories`.
 
 ## TODO
-- [ ] Improve Swagger documentation.
+- [x] Improve Swagger documentation.
