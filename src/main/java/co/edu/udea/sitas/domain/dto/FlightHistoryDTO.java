@@ -4,7 +4,8 @@ import co.edu.udea.sitas.domain.model.FlightHistory;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.LocalDateTime;
+import io.swagger.v3.oas.annotations.media.Schema;
+
 
 @Data
 @Setter
@@ -14,14 +15,20 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Schema(description = "DTO representing a flight history")
 public class FlightHistoryDTO {
+
+    @Schema(description = "Flight history ID", example = "1")
     private Long flightHistoryId;
+
+    @Schema(description = "Person ID", example = "100")
     private Long personId;
+
+    @Schema(description = "Flight ID", example = "200")
     private Long flightId;
 
-
     public static FlightHistoryDTO buildFlightHistoryDTO(FlightHistory flightHistory) {
-        log.info("convert FlightHistory to FlightHistoryDTO");
+        log.info("Convert FlightHistory to FlightHistoryDTO");
         return FlightHistoryDTO.builder()
                 .flightHistoryId(flightHistory.getFlightHistoryId())
                 .personId(flightHistory.getPerson().getPersonId())
@@ -29,4 +36,5 @@ public class FlightHistoryDTO {
                 .build();
     }
 }
+
 

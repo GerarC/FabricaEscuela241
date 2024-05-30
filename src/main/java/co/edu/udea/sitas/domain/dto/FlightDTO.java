@@ -9,6 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+
 @Data
 @Setter
 @Getter
@@ -16,18 +19,39 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Schema(description = "DTO representing a flight")
 public class FlightDTO {
-    // Attributes
+    @Schema(description = "Flight ID", example = "1")
     private Long flightId;
+
+    @Schema(description = "Flight number", example = "AV123")
     private String flightNumber;
+
+    @Schema(description = "Base price of the flight", example = "200.0")
     private Float basePrice;
+
+    @Schema(description = "Tax percentage", example = "10.0")
     private Float taxPercent;
+
+    @Schema(description = "Surcharge", example = "20.0")
     private Float surcharge;
+
+    @Schema(description = "Number of scales", example = "2")
     private Integer scaleNumber;
+
+    @Schema(description = "Origin airport")
     private Airport originAirport;
+
+    @Schema(description = "Destination airport")
     private Airport destinationAirport;
+
+    @Schema(description = "Departure date and time", example = "2024-06-01T10:15:30")
     private LocalDateTime departureDate;
+
+    @Schema(description = "Arrival date and time", example = "2024-06-01T14:30:00")
     private LocalDateTime arrivalDate;
+
+    @Schema(description = "List of scales")
     private List<Scale> scales;
 
     @Override
@@ -47,7 +71,7 @@ public class FlightDTO {
     }
 
     public static FlightDTO buildFlightDTO(Flight flight){
-        log.info("convert flight in a FlightDTO");
+        log.info("Convert flight into FlightDTO");
         int scaleNumber = flight.getScales().size();
         Scale initialScale = flight.getScales().get(0);
         Scale finalScale = flight.getScales().get(scaleNumber - 1);
@@ -66,3 +90,4 @@ public class FlightDTO {
                 .build();
     }
 }
+
